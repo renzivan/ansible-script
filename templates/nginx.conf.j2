@@ -1,0 +1,22 @@
+server {
+    # Listen on ipv4
+    listen 80;
+    # Listen on ipv6.
+    # Note: this setting listens on both ipv4 and ipv6 with Nginx release
+    #       shipped in some Linux/BSD distributions.
+    listen [::]:80;
+    server_name _;
+        # return 301 https:$host$request_uri;
+    root /var/www/html;
+        index index.html index.php;
+        location / {
+                try_files $uri $uri/ /index.php$is_args$args;
+                #try_files $uri $uri/ =404;
+        }
+        location ~ \.php$ {
+                include snippets/fastcgi-php.conf;
+                #fastcgi_pass unix:/var/run/php-fpm.socket;
+                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        }
+}
+

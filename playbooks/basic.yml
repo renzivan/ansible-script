@@ -1,0 +1,90 @@
+---
+
+    - hosts: webserver 
+      vars:
+        wp_db_name: '{{wp_db_name}}'
+ 
+      tasks:
+        #- name: install python
+        #  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+        
+        - name: Install nginx
+          apt:
+            update_cache: yes
+            name: nginx
+            state: present
+        
+        #- name: configure nginx remove existing conf
+        #  file:
+        #    path: /etc/nginx/sites-available/*
+        #    state: absent
+        
+        - name: remove nginx conf default files
+          raw: rm -rf /etc/nginx/sites-available/*        
+        
+        - name: configure nginx add custom conf
+          template:
+            src: ../templates/nginx.conf.j2 
+            dest: /etc/nginx/sites-available/nginx.conf
+          notify: restart nginx
+        
+        - name: configure nginx link those shit
+          file:
+            src: /etc/nginx/sites-available/nginx.conf
+            dest: /etc/nginx/sites-enabled/nginx.conf
+            state: link
+          notify: restart nginx
+        
+        #- name: Ensure nginx started
+        #  service:
+        #    name: nginx
+        #    state: started
+        #    enabled: yes
+
+        - name: Install mysql
+          apt:
+            name: ['mysql-server', 'mysql-client', 'python-mysqldb']
+            state: present
+
+        - mysql_user:
+            login_user: root
+            login_password: Hello101!
+            name: root
+            password: Hello101!
+            update_password: always
+            priv: '*.*:ALL'
+            state: present
+
+        - name: Create wordpress database
+          mysql_db:
+            login_user: root
+            login_password: Hello101!
+            name: '{{wp_db_name}}'
+            state: present
+            
+        - name: Install php
+          apt:
+            name: ['php', 'php-mysql', 'php-cgi', 'php-cli', 'php-gd']
+            state: present
+
+        - name: Install wordpress
+          raw: "{{item}}"
+          with_items:
+            - 'wget -c http://wordpress.org/latest.tar.gz'
+            - 'tar -xzvf latest.tar.gz'
+            - 'rsync -av wordpress/* /var/www/html/'
+            - 'chown -R www-data:www-data /var/www/html/'
+            - 'chmod -R 755 /var/www/html/'
+        
+        - name: configure wp remove existing wp-config
+          template:
+            src: ../templates/wp-config.php.j2
+            dest: /var/www/html/wp-config.php
+          notify: restart nginx
+    
+      handlers:
+        - name: restart nginx
+          service:
+            name: nginx
+            state: restarted
+
