@@ -14,6 +14,6 @@
 ## Setup FTP User
 
 ### Run playbook with 3 parameters -- user, password, and directory access
- `$ ansible-playbook playbooks/ftp_user.yml -e "ftp_user=<user> ftp_pass=<passwd> bind_to=<directory>"
+ `$ ansible-playbook playbooks/ftp_user.yml -e "ftp_user=<user> ftp_pass=<passwd> bind_to=<directory>"`
 #### Notes:
- - ftp user's files directory -- /home/<user>/ftp/files/
+ - ftp user's files directory -- /home/**user**/ftp/files/
