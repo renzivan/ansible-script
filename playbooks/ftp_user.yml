@@ -1,0 +1,76 @@
+---
+    
+    - hosts: webserver
+      vars:
+        ftp_user: '{{ftp_user}}'
+        ftp_pass: '{{ftp_passs}}'
+        bind_to: '{{bind_to}}'
+
+      tasks:
+        - name: Installing vsftpd
+          apt:
+            update_cache: yes
+            name: vsftpd
+            state: present
+        - name: backup default vsftpd config
+          raw: cp /etc/vsftpd.conf /etc/vsftpd.conf.orig
+        
+        - name: Enabling firewall and allowing ports
+          ufw:
+            state: enabled
+            rule: allow
+            port: '{{item}}'
+          with_items:
+            - 22
+            - 80
+            - 443
+
+        - name: Allowing tcp ports
+          ufw:
+            rule: allow
+            port: '{{item}}'
+            proto: tcp
+          with_items:
+            - 20
+            - 21
+            - 990
+            - 40000:50000
+
+        - name: Adding ftp user '{{ftp_user}}'
+          user:
+            name: '{{ftp_user}}'
+            password: "{{ ftp_pass | password_hash('sha512') }}" 
+            update_password: always  
+            shell: /bin/bash
+
+        - name: Setting up exclusive directory for '{{ftp_user}}'
+          raw: '{{item}}'
+          with_items:
+            - mkdir /home/{{ftp_user}}/ftp
+            - chown nobody:nogroup /home/{{ftp_user}}/ftp
+            - chmod a-w /home/{{ftp_user}}/ftp
+            - mkdir /home/{{ftp_user}}/ftp/files
+            - touch /home/{{ftp_user}}/ftp/files/test.txt
+            #- chown '{{ftp_user}}':'{{ftp_user}}' /home/{{ftp_user}}/ftp/files/*
+        
+        - name: Configuring ftp access
+          template:
+            src: ../templates/vsftpd.conf.j2
+            dest: /etc/vsftpd.conf
+          notify: restart vsftpd
+
+        - name: Adding '{{ftp_user}}' to vsftpd userlist
+          raw: echo "{{ftp_user}}" >> /etc/vsftpd.chroot_list
+          notify: restart vsftpd
+
+        - name: Syncing '/home/{{ftp_user}}/ftp/files/' with '{{bind_to}}'
+          raw: '{{item}}'
+          with_items:
+            - sudo mount --bind '{{bind_to}}' /home/{{ftp_user}}/ftp/files
+            - chown -R '{{ftp_user}}':'{{ftp_user}}' /home/{{ftp_user}}/ftp/files/ 
+
+      handlers:
+        - name: restart vsftpd
+          service:
+            name: vsftpd
+            state: restarted
