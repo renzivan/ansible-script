@@ -19,7 +19,7 @@
 #### Notes:
  - ftp user's files directory -- /home/**user**/ftp/files/
 
-#### Update 10.24.18
+#### Update 10.24.18:
 ##### Dynamic host and ssh login
  `$ ansible-playbook playbooks/ftp_user.yml -e "ftp_user=<user> ftp_pass=<passwd> bind_to=<directory> inv_host=<host_ip> inv_user=<ssh user> inv_pass=<ssh pass>"`
 
