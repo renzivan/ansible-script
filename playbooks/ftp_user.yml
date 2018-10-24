@@ -1,4 +1,21 @@
 ---
+    - name: Host configuration
+      hosts: localhost
+      gather_facts: false
+      vars:
+        inv_host: '{{inv_host}}'
+        inv_user: '{{inv_user}}'
+        inv_pass: '{{inv_pass}}'
+      tasks:
+        - name: remove old inventory
+          raw: rm -rf ../inventory/dev.ini
+        - name: replace
+          template:
+            src: ../templates/dev.ini.j2
+            dest: ../inventory/dev.ini
+
+
+
     
     - hosts: webserver
       vars:

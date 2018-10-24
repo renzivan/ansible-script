@@ -11,9 +11,15 @@
  - configure host credentials in **dev.ini**
  - location **/var/www/html/index.php**
 
+
 ## Setup FTP User
 
 ### Run playbook with 3 parameters -- user, password, and directory access
  `$ ansible-playbook playbooks/ftp_user.yml -e "ftp_user=<user> ftp_pass=<passwd> bind_to=<directory>"`
 #### Notes:
  - ftp user's files directory -- /home/**user**/ftp/files/
+#### Update 10.24.18
+ - dynamic host and ssh login
+ `$ ansible-playbook playbooks/ftp_user.yml -e "ftp_user=<user> ftp_pass=<passwd> bind_to=<directory> inv_host=<host_ip> inv_user=<ssh user> inv_pass=<ssh pass>"`
+
+

@@ -1,0 +1,5 @@
+[webserver]
+app ansible_host={{inv_host}} ansible_user={{inv_user}} ansible_ssh_pass={{inv_pass}}
+
+[control]
+control ansible_connection=local
