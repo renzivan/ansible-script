@@ -1,27 +1,20 @@
 ---
-    - name: Host configuration
-      hosts: localhost
-      gather_facts: false
-      vars:
-        inv_host: '{{inv_host}}'
-        inv_user: '{{inv_user}}'
-        inv_pass: '{{inv_pass}}'
-      tasks:
-        - name: remove old inventory
-          raw: rm -rf ../inventory/dev.ini
-        - name: replace
-          template:
-            src: ../templates/dev.ini.j2
-            dest: ../inventory/dev.ini
-
-
-
-    
+   
     - hosts: webserver
-      vars:
-        ftp_user: '{{ftp_user}}'
-        ftp_pass: '{{ftp_passs}}'
-        bind_to: '{{bind_to}}'
+      #vars:
+      #  ftp_user: '{{ftp_user}}'
+      #  ftp_pass: '{{ftp_passs}}'
+      #  bind_to: '{{bind_to}}'
+      vars_prompt:
+        - name: ftp_user
+          prompt: 'new ftp user'
+          private: no
+        - name: ftp_pass
+          prompt: 'password'
+          confirm: yes
+        - name: bind_to
+          prompt: 'directory to access'
+          private: no
 
       tasks:
         - name: Installing vsftpd
