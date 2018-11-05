@@ -32,3 +32,4 @@
  - Entered path must be on this format (/var/www/...)
     - e.g. migrate html folder to remote server
     - /var/www/html (no slash at the end)
+ - The path entered will be the path used by the remote destination server
