@@ -1,0 +1,31 @@
+---
+    - name: Configuring migration hosts (default user -> root)
+      hosts: localhost:app
+      gather_facts: false
+      vars_prompt:
+        - name: src_host
+          prompt: 'source host'
+          private: no
+        - name: src_pass
+          prompt: 'source password'
+        - name: dest_host
+          prompt: 'destination host'
+          private: no
+        - name: dest_pass
+          prompt: 'destination password'
+      tasks:
+        - set_fact:
+            src_host: '{{src_host}}'
+            src_pass: '{{src_pass}}'
+            dest_host: '{{dest_host}}'
+            dest_pass: '{{dest_pass}}'
+
+    - hosts: localhost
+      tasks:
+        - name: removing existing inventory
+          raw: rm -rf ../inventory/dev.ini
+        - name: adding new inventory
+          template:
+            src: ../templates/migrate/migrate.ini.j2
+            dest: ../inventory/dev.ini
+

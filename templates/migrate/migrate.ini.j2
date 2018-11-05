@@ -1,0 +1,6 @@
+[app]
+src ansible_connection=ssh ansible_host={{src_host}} ansible_user=root ansible_ssh_pass={{src_pass}}
+dest ansible_connection=ssh ansible_host={{dest_host}} ansible_user=root ansible_ssh_pass={{dest_pass}}
+ 
+[control]
+control ansible_connection=local

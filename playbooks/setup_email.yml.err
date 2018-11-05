@@ -1,0 +1,39 @@
+---
+    - name: Setting up iRedMail
+      hosts: webserver
+      vars:
+        iRedMail: 'iRedMail-0.9.8'
+      vars_prompt:
+        - name: short_hostname
+          prompt: 'short hostname'
+          private: no 
+      
+      tasks:
+        - name: Configuring short hostname
+          raw: echo '{{short_hostname}}' > /etc/hostname
+        - name: Enter hostname
+          pause:
+            prompt: 'hostname'
+          register: hostname        
+        - name: Lineinfile
+          lineinfile:
+              path: /etc/hosts
+              regexp: '^127\.0\.0\.1'
+              line: '127.0.0.1 {{short_hostname}}.{{hostname.user_input}}.com {{short_hostname}} localhost localhost.localdomain'
+        - name: Downloading '{{iRedMail}}'
+          raw: wget -c https://bitbucket.org/zhb/iredmail/downloads/{{iRedMail}}.tar.bz2
+        - name: Extracting '{{iRedMail}}'
+          raw: tar -xjvf {{iRedMail}}.tar.bz2
+        
+        - name: iRedMail questions
+          expect: 
+            command: bash {{iRedMail}}/iRedMail.sh
+            responses:
+                'Storage base directory:': '/var/vmail'
+                'Mailboxes:': '/var/vmail/vmail1'
+                'Store mail accounts in:': 'MySQL'
+                'Web server:': 'Nginx'
+                'First mail domain name:': '{{hostname}}.com'
+                'Password for the mail domain administrator:': 'Hello101!'
+                'Additional components:': "'iRedAdmin' 'Roundcubemail' 'SOgo' 'Fail2ban'"
+                '^Continue:': 'y'

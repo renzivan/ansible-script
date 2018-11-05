@@ -51,6 +51,7 @@
         - mysql_user:
             login_user: root
             login_password: Hello101!
+            #create mysql user
             name: root
             password: Hello101!
             update_password: always
@@ -75,14 +76,20 @@
             - 'wget -c http://wordpress.org/latest.tar.gz'
             - 'tar -xzvf latest.tar.gz'
             - 'rsync -av wordpress/* /var/www/html/'
-            - 'chown -R www-data:www-data /var/www/html/'
-            - 'chmod -R 755 /var/www/html/'
+
         
         - name: configure wp remove existing wp-config
           template:
             src: ../templates/wp-config.php.j2
             dest: /var/www/html/wp-config.php
           notify: restart nginx
+
+        - name: Set permission
+          raw: '{{item}}'
+          with_items:
+            - 'chown -R www-data:www-data /var/www/html/'
+            - 'chmod -R 755 /var/www/html/'
+
     
       handlers:
         - name: restart nginx

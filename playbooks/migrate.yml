@@ -1,0 +1,174 @@
+---
+    - name: Configuring migration hosts (default user -> root)
+      hosts: localhost:app
+      gather_facts: false
+#      vars_prompt:
+#        - name: src_host
+#          prompt: 'source host'
+#          private: no
+#        - name: src_pass
+#          prompt: 'source password'
+#        - name: dest_host
+#          prompt: 'destination host'
+#          private: no
+#        - name: dest_pass
+#          prompt: 'destination password'
+      vars:
+        src_host: 159.65.12.44
+        src_pass: Hello101!
+        dest_host: 206.189.85.211
+        dest_pass: Hello101!
+      tasks:
+        - set_fact:
+            src_host: '{{src_host}}'
+            src_pass: '{{src_pass}}'
+            dest_host: '{{dest_host}}'
+            dest_pass: '{{dest_pass}}'
+
+    - hosts: localhost
+      tasks:
+        - name: removing existing inventory
+          raw: rm -rf ../inventory/dev.ini
+        - name: adding new inventory
+          template:
+            src: ../templates/migrate/migrate.ini.j2
+            dest: ../inventory/dev.ini
+        
+    ## WEBSERVER ##
+    - hosts: app
+      gather_facts: false
+      roles:
+        - python
+        - nginx
+        - php
+        - mysql 
+      vars_prompt:
+        - name: path
+          prompt: 'path (e.g. /var/www/html)'
+          private: no
+      tasks:
+        - set_fact:
+            path: '{{path}}'
+
+    ## SOURCE ##
+    - hosts: app[0]
+      tasks:
+        - name: Source-> Retrieving database configuration data
+          raw: '{{item}}'
+          with_items:
+            - cat '{{path}}/wp-config.php' | grep '.*DB_NAME.*'
+            - cat '{{path}}/wp-config.php' | grep '.*DB_USER.*'
+            - cat '{{path}}/wp-config.php' | grep '.*DB_PASSWORD.*'
+          register: src_get_db_data
+        - name: Source-> Retrieveing database name
+          debug:
+            msg: '{{src_get_db_data.results[0].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}'
+          register: src_db_name
+        - name: Source-> Retrieving database user
+          debug:            
+            msg: '{{src_get_db_data.results[1].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}'
+          register: src_db_user
+        - name: Source-> Retrieving database password
+          debug:
+            msg: '{{src_get_db_data.results[2].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}' 
+          register: src_db_pass
+        - name: Source-> Dumping database
+          mysql_db:
+            login_user: '{{src_db_user.msg}}'
+            login_password: '{{src_db_pass.msg}}'
+            state: dump
+            name: '{{src_db_name.msg}}'
+            target: '{{path}}/{{src_db_name.msg}}.sql'
+
+        - name: Compressing files in bz2 format
+          archive:
+            path:
+            - '{{path}}'
+            dest: '{{path}}.tar.bz2'
+            exclude_path:
+            - '{{path}}/.git'
+            - '{{path}}/.gitignore'
+            format: bz2
+        - name: Fetching files to server    
+          fetch:
+            src: '{{path}}.tar.bz2'
+            dest: '{{path}}.tar.bz2'
+            flat: yes
+
+    ## DESTINATION ##
+    - hosts: app[1]
+      gather_facts: false
+      tasks:
+        - name: Creating directory for migrated files
+          raw: mkdir -p '{{path}}'
+        - name: Copying files from the server
+          copy:
+            src: '{{path}}.tar.bz2'
+            dest: '{{path}}.tar.bz2'
+        - name: Extracting migrated files
+          unarchive:
+            src: '{{path}}.tar.bz2'
+            dest: '{{path}}/..' 
+        - name: Configuring nginx
+          template:
+            src: ../templates/migrate/mig-nginx.conf.j2
+            dest: /etc/nginx/sites-available/{{path.split('/')[-1:][0]}}.conf
+          notify: restart nginx
+        - name: Linking sites-available and sites-enabled
+          file:
+            src: /etc/nginx/sites-available/{{path.split('/')[-1:][0]}}.conf
+            dest: /etc/nginx/sites-enabled/{{path.split('/')[-1:][0]}}.conf
+            state: link
+          notify: restart nginx
+        - name: Retrieving database configuration data
+          raw: '{{item}}'
+          with_items:
+            - cat '{{path}}/wp-config.php' | grep '.*DB_NAME.*'
+            - cat '{{path}}/wp-config.php' | grep '.*DB_USER.*'
+            - cat '{{path}}/wp-config.php' | grep '.*DB_PASSWORD.*'
+          register: get_db_data
+        - name: Retrieveing database name
+          debug:
+            msg: '{{get_db_data.results[0].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}'
+          register: db_name
+        - name: Retrieving database user
+          debug:            
+            msg: '{{get_db_data.results[1].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}'
+          register: db_user
+        - name: Retrieving database password
+          debug:
+            msg: '{{get_db_data.results[2].stdout_lines[0].split(" ")[1].replace(");","")[1:-1]}}' 
+          register: db_pass
+        
+        - name: Setting up database user 
+          mysql_user:
+            login_user: root
+            login_password: Hello101!
+            name: '{{db_user.msg}}'
+            password: '{{db_pass.msg}}'
+            priv: '*.*:ALL'
+            state: present
+        - name: Creating database
+          mysql_db:
+            login_user: '{{db_user.msg}}'
+            login_password: '{{db_pass.msg}}'
+            name: '{{db_name.msg}}'
+            state: present
+        - name: Importing database
+          mysql_db:
+            login_user: '{{db_user.msg}}'
+            login_password: '{{db_pass.msg}}'
+            name: '{{db_name.msg}}'
+            state: import
+            target: '{{path}}/{{db_name.msg}}.sql'
+
+      handlers:
+        - name: restart nginx
+          service:
+            name: nginx
+            state: restarted
+        
+
+
+     
+          
