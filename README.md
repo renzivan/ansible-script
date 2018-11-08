@@ -4,7 +4,7 @@
  `$ apt-add-repository --yes --update ppa:ansible/ansible`
  `$ apt-get install ansible`
 ####Note:
- > On older Ubuntu distributions, "software-properties-common" is called "python-software-properties".
+ On older Ubuntu distributions, "software-properties-common" is called "python-software-properties".
 
 # ANSIBLE SCRIPTS
 
