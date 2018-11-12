@@ -46,43 +46,23 @@
           file:
             path: 'iRedMail-{{iRedMail}}/iRedMail.sh'
             mode: 0700
-#        - name: Installing iredmail
-#          shell: "bash iRedMail.sh"
-#          args:
-#            chdir: '~/iRedMail-{{iRedMail}}'
-#          notify: restart stack
-        - name: iRedMail prompts
-          expect:
-            command: bash iRedMail.sh
+        - name: Installing iredmail
+          shell: "IREDMAIL_DEBUG='NO' AUTO_USE_EXISTING_CONFIG_FILE=y AUTO_INSTALL_WITHOUT_CONFIRM=y AUTO_CLEANUP_REMOVE_SENDMAIL=y AUTO_CLEANUP_REMOVE_MOD_PYTHON=y AUTO_CLEANUP_REPLACE_FIREWALL_RULES=n AUTO_CLEANUP_RESTART_IPTABLES=n AUTO_CLEANUP_REPLACE_MYSQL_CONFIG=y AUTO_CLEANUP_RESTART_POSTFIX=n bash iRedMail.sh"
+          args:
             chdir: '~/iRedMail-{{iRedMail}}'
-            responses:
-                Question:
+        - raw: service postfix restart
+#          notify: restart stack
+#        - name: Installing iRedMail 
+#          expect:
+#            command: bash iRedMail.sh
+#            chdir: '~/iRedMail-{{iRedMail}}'
+#            responses:
+#                Question:
 #                    - 'y'
 #                    - 'n'
-                    - 'it for mail server': 'y'
+#                    - 'it for mail server': 'y'
 #                  '.*ould you like to use firewall .*': 'n'
-                    - 'with SSHD port': 'n'
-            echo: yes
+#                    - 'with SSHD port': 'n'
+#            echo: yes
 
-    - handlers:
-        - name: restart stack
-          systemd:
-            name: '{{item}}'
-            state: restarted
-          with_items:
-            - postfix
-            - mysql
-            - nginx
-            - php7.0-fpm
-            - uwsgi
-            - dovecot
-            - clamav-daemon
-            - amavis
-            - clamav-freshclam
-            - sogo
-            - memcached
-        - name: restart iredapd
-          systemd:
-            name: iredapd
-            state: restarted
-        
+       
