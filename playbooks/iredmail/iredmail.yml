@@ -1,0 +1,88 @@
+---
+    - name: Setting up iRedMail
+      hosts: webserver
+      gather_facts: false
+      roles:
+        - python
+#      vars_prompt:
+#        - name: iRedMail
+#          prompt: 'iRedMail Version (e.g. 0.9.8)'
+#          private: no
+#        - name: short_hostname
+#          prompt: 'short hostname'
+#          private: no 
+      vars:
+        iRedMail: 0.9.8
+        short_hostname: mx
+        hostname: example
+      
+      tasks:
+        - name: Configuring short hostname
+          raw: echo '{{short_hostname}}' > /etc/hostname
+#        - name: Enter hostname
+#          pause:
+#            prompt: 'hostname'
+#          register: hostname        
+        - name: Lineinfile
+          lineinfile:
+              path: /etc/hosts
+              regexp: '^127\.0\.0\.1'
+#              line: '127.0.0.1 {{short_hostname}}.{{hostname.user_input}}.com {{short_hostname}} localhost localhost.localdomain'
+              line: '127.0.0.1 {{short_hostname}}.{{hostname}}.com {{short_hostname}} localhost localhost.localdomain'
+        - name: Downloading iRedMail-'{{iRedMail}}'.tar.bz2
+          raw: wget -c https://bitbucket.org/zhb/iredmail/downloads/iRedMail-{{iRedMail}}.tar.bz2
+        - name: Extracting iRedMail-'{{iRedMail}}'
+          raw: '{{item}}'
+          with_items:
+            - tar -xjvf iRedMail-{{iRedMail}}.tar.bz2
+            - cd iRedMail-{{iRedMail}}
+        - name: Copying install config
+          template:
+            src: ../../templates/iredmail/config.j2
+            dest: 'iRedMail-{{iRedMail}}/config'
+        - name: rebooting server
+          reboot:
+        - name: setting permissions on install script
+          file:
+            path: 'iRedMail-{{iRedMail}}/iRedMail.sh'
+            mode: 0700
+#        - name: Installing iredmail
+#          shell: "bash iRedMail.sh"
+#          args:
+#            chdir: '~/iRedMail-{{iRedMail}}'
+#          notify: restart stack
+        - name: iRedMail prompts
+          expect:
+            command: bash iRedMail.sh
+            chdir: '~/iRedMail-{{iRedMail}}'
+            responses:
+                Question:
+#                    - 'y'
+#                    - 'n'
+                    - 'it for mail server': 'y'
+#                  '.*ould you like to use firewall .*': 'n'
+                    - 'with SSHD port': 'n'
+            echo: yes
+
+    - handlers:
+        - name: restart stack
+          systemd:
+            name: '{{item}}'
+            state: restarted
+          with_items:
+            - postfix
+            - mysql
+            - nginx
+            - php7.0-fpm
+            - uwsgi
+            - dovecot
+            - clamav-daemon
+            - amavis
+            - clamav-freshclam
+            - sogo
+            - memcached
+        - name: restart iredapd
+          systemd:
+            name: iredapd
+            state: restarted
+        

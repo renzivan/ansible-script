@@ -1,4 +1,9 @@
 ---
     - name: Installing python
       raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    - name: Installing pexpect python module
+#      raw: apt-get install python-pexpect
+      apt:
+        name: ['python-pexpect']
+        state: present
 

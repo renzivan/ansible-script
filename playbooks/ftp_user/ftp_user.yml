@@ -65,7 +65,7 @@
         
         - name: Configuring ftp access
           template:
-            src: ../templates/vsftpd.conf.j2
+            src: ../../templates/ftp_user/vsftpd.conf.j2
             dest: /etc/vsftpd.conf
           notify: restart vsftpd
 

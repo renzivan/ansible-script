@@ -3,23 +3,18 @@
  `$ apt-get install software-properties-common`
  `$ apt-add-repository --yes --update ppa:ansible/ansible`
  `$ apt-get install ansible`
+
 ####Note:
  On older Ubuntu distributions, "software-properties-common" is called "python-software-properties".
 
+
 # ANSIBLE SCRIPTS
 
-## Configure inventory
- `$ ansible-playbook playbooks/setup_host.yml`
-
-#### Notes:
- - it replaces the existing inventory
- - can only configure 1 host
-
-## Install python for ansible scripts to execute
- `$ ansible all -m raw -a "test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)"`
-
-## PLAYBOOK 1: Setup Basic Wordpress Website with Nginx, MySQL, and PHP 
- `$ ansible-playbook playbooks/setup_wordpress.yml`
+## PLAYBOOK 1: Setup Basic Wordpress Website with Nginx, MySQL, and PHP
+ - Configure target host
+ `$ ansible-playbook playbooks/wordpress/setup_host.yml`
+ - Setup Wordpress site
+ `$ ansible-playbook playbooks/wordpress/setup_wordpress.yml`
 
 #### Notes:
  - default mysql username: **root**
@@ -28,6 +23,9 @@
 
 
 ## PLAYBOOK 2: Setup FTP User
+ - Configure target host
+ `$ ansible-playbook playbooks/ftp_user/setup_host.yml`
+ - Setup FTP User
  `$ ansible-playbook playbooks/ftp_user.yml`
 
 #### Notes:

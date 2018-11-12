@@ -13,26 +13,26 @@
 #          private: no
 #        - name: dest_pass
 #          prompt: 'destination password'
-      vars:
-        src_host: 159.65.12.44
-        src_pass: Hello101!
-        dest_host: 206.189.85.211
-        dest_pass: Hello101!
-      tasks:
-        - set_fact:
-            src_host: '{{src_host}}'
-            src_pass: '{{src_pass}}'
-            dest_host: '{{dest_host}}'
-            dest_pass: '{{dest_pass}}'
+#      vars:
+#        src_host: 159.65.12.44
+#        src_pass: Hello101!
+#        dest_host: 206.189.85.211
+#        dest_pass: Hello101!
+#      tasks:
+#        - set_fact:
+#            src_host: '{{src_host}}'
+#            src_pass: '{{src_pass}}'
+#            dest_host: '{{dest_host}}'
+#            dest_pass: '{{dest_pass}}'
 
-    - hosts: localhost
-      tasks:
-        - name: removing existing inventory
-          raw: rm -rf ../inventory/dev.ini
-        - name: adding new inventory
-          template:
-            src: ../templates/migrate/migrate.ini.j2
-            dest: ../inventory/dev.ini
+#    - hosts: localhost
+#      tasks:
+#        - name: removing existing inventory
+#          raw: rm -rf ../inventory/dev.ini
+#        - name: adding new inventory
+#          template:
+#            src: ../templates/migrate/migrate.ini.j2
+#            dest: ../inventory/dev.ini
         
     ## WEBSERVER ##
     - hosts: app
