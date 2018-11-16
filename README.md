@@ -11,7 +11,7 @@
 # ANSIBLE SCRIPTS
 
 ## PLAYBOOK 1: Setup Basic Wordpress Website with Nginx, MySQL, and PHP
- - Configure target host
+ - Configure target host<br/>
  `$ ansible-playbook playbooks/wordpress/setup_host.yml`
  - Setup Wordpress site
  `$ ansible-playbook playbooks/wordpress/setup_wordpress.yml`
