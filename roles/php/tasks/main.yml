@@ -1,6 +1,6 @@
 ---
         - name: Install php
           apt:
-            name: ['php', 'php-mysql', 'php-cgi', 'php-cli', 'php-gd']
+            name: ['php', 'php-mysql', 'php-cgi', 'php-cli', 'php-gd', 'php-mbstring', 'php-xml']
             state: present
 

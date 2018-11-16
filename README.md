@@ -17,9 +17,9 @@
  `$ ansible-playbook playbooks/wordpress/setup_wordpress.yml`
 
 #### Notes:
- - default mysql username: **root**
+ - default mysql username: **Entered db name**
  - default mysql password: He\*\*\*\*\*\*\*
- - location **/var/www/html/index.php**
+ - location **/var/www/entered db name**
 
 
 ## PLAYBOOK 2: Setup FTP User
@@ -39,3 +39,15 @@
     - e.g. migrate html folder to remote server
     - /var/www/html (no slash at the end)
  - The path entered will be the path used by the remote destination server
+
+## PLAYBOOK 4: Setup iRedMail
+ - Configure host
+ `$ ansible-playbook playbooks/iredmail/host.yml`
+ - Setup iRedMail
+ `$ ansible-playbook playbooks/iredmail/iredmail.yml`
+
+## PLAYBOOK 5: Setup Wordpress with iRedMail
+ - Configure host
+ `$ ansible-playbook playbooks/wp_iredmail/host.yml`
+ - Setup
+ `$ ansible-playbook playbooks/wp_iredmail/wp_iredmail.yml`

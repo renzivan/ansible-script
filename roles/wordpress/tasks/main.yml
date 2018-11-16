@@ -1,17 +1,17 @@
 ---
-    - name: Installing wordpress
-      hosts: webserver
-      gather_facts: false
-      vars_prompt:       
-        - name: wp_db_name
-          prompt: 'database name'
-          private: no
+#    - name: Installing wordpress
+#      hosts: webserver
+#      gather_facts: false
+#      vars_prompt:       
+#        - name: wp_db_name
+#          prompt: 'database name'
+#          private: no
 #        - name: wp_path
 #          prompt: 'path (eg. /var/www/test)'
 #          private: no
-      roles:
-        - python 
-      tasks:
+#      roles:
+#        - python 
+#      tasks:
         #- name: install python
         #  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
         
@@ -31,7 +31,7 @@
         
         - name: configure nginx add custom conf
           template:
-            src: ../../templates/wordpress/nginx.conf.j2 
+            src: nginx.conf.j2 
             dest: /etc/nginx/sites-available/wp-nginx.conf
           notify: restart nginx
         
@@ -85,7 +85,7 @@
         
         - name: configure wp remove existing wp-config
           template:
-            src: ../../templates/wordpress/wp-config.php.j2
+            src: wp-config.php.j2
             dest: '/var/www/{{wp_db_name}}/wp-config.php'
           notify: restart nginx
 
@@ -95,10 +95,4 @@
             - 'chown -R www-data:www-data /var/www/{{wp_db_name}}/'
             - 'chmod -R 755 /var/www/{{wp_db_name}}/'
 
-    
-      handlers:
-        - name: restart nginx
-          service:
-            name: nginx
-            state: restarted
 

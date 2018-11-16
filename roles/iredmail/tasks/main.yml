@@ -1,37 +1,11 @@
 ---
-    - name: Setting up iRedMail
-      hosts: webserver
-      gather_facts: false
-      roles:
-        - python
-#        - wp_iredmail
-      vars_prompt:
-        - name: iRedMail
-          prompt: 'iRedMail Version (e.g. 0.9.8)'
-          private: no
-        - name: short_hostname
-          prompt: 'short hostname'
-          private: no 
-        - name: hostname
-          prompt: 'hostname'
-          private: no
-#      vars:
-#        iRedMail: 0.9.8
-#        short_hostname: mx
-#        hostname: example
-      
-      tasks:
+
         - name: Configuring short hostname
           raw: echo '{{short_hostname}}' > /etc/hostname
-#        - name: Enter hostname
-#          pause:
-#            prompt: 'hostname'
-#          register: hostname        
         - name: Lineinfile
           lineinfile:
               path: /etc/hosts
               regexp: '^127\.0\.0\.1'
-#              line: '127.0.0.1 {{short_hostname}}.{{hostname.user_input}}.com {{short_hostname}} localhost localhost.localdomain'
               line: '127.0.0.1 {{short_hostname}}.{{hostname}}.com {{short_hostname}} localhost localhost.localdomain'
         - name: Downloading iRedMail-'{{iRedMail}}'.tar.bz2
           raw: wget -c https://bitbucket.org/zhb/iredmail/downloads/iRedMail-{{iRedMail}}.tar.bz2
@@ -42,7 +16,7 @@
             - cd iRedMail-{{iRedMail}}
         - name: Copying install config
           template:
-            src: ../../templates/iredmail/config.j2
+            src: config.j2
             dest: 'iRedMail-{{iRedMail}}/config'
         - name: rebooting server
           reboot:
@@ -56,7 +30,7 @@
             chdir: '~/iRedMail-{{iRedMail}}'          
         - name: configuring nginx for iredmail
           template:
-            src: ../../templates/iredmail/iredmail_nginx.conf.j2
+            src: iredmail_nginx.conf.j2
             dest: /etc/nginx/sites-available/00-default-ssl.conf
 
         - name: rebooting server

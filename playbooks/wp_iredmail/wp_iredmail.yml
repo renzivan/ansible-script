@@ -1,0 +1,23 @@
+---
+    - name: Setting up Wordpress and iRedMail    
+      hosts: webserver
+      gather_facts: false
+      vars_prompt:
+        - name: wp_db_name
+          prompt: 'database name'
+          private: no    
+        - name: iRedMail
+          prompt: 'iRedMail Version (e.g. 0.9.8)'
+          private: no
+        - name: short_hostname
+          prompt: 'short hostname'
+          private: no
+        - name: hostname
+          prompt: 'hostname'
+          private: no
+
+      roles:
+        - python
+        - wordpress
+        - iredmail
+   

@@ -1,0 +1,24 @@
+#
+# Note: This file must be loaded before other virtual host config files,
+#
+# HTTPS
+server {
+    listen 443;
+    server_name _;
+
+    root /var/www/{{wp_db_name}};
+    index index.php index.html;
+
+    include /etc/nginx/templates/misc.tmpl;
+    include /etc/nginx/templates/ssl.tmpl;
+    include /etc/nginx/templates/iredadmin.tmpl;
+    include /etc/nginx/templates/roundcube.tmpl;
+    include /etc/nginx/templates/sogo.tmpl;
+    include /etc/nginx/templates/netdata.tmpl;
+    include /etc/nginx/templates/php-catchall.tmpl;
+    
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+}
+
