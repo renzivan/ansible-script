@@ -5,7 +5,7 @@ server {
     # Note: this setting listens on both ipv4 and ipv6 with Nginx release
     #       shipped in some Linux/BSD distributions.
     listen [::]:80;
-    server_name {{dest_host}};
+    server_name _;
     root {{path}};
         index index.html index.php;
         location / {

@@ -44,7 +44,7 @@
         - mysql 
       vars_prompt:
         - name: path
-          prompt: 'path (e.g. /var/www/html)'
+          prompt: 'src path (e.g. /var/www/html)'
           private: no
       tasks:
         - set_fact:
@@ -109,9 +109,17 @@
           unarchive:
             src: '{{path}}.tar.bz2'
             dest: '{{path}}/..' 
+
+        - name: moving old nginx config
+          raw: '{{item}}'
+          with_items:
+            - mkdir /etc/nginx/sites-available-old
+            - mv /etc/nginx/sites-available/* /etc/nginx/sites-available-old/
+          ignore_errors: yes
+
         - name: Configuring nginx
           template:
-            src: ../templates/migrate/mig-nginx.conf.j2
+            src: ../../templates/migrate/mig-nginx.conf.j2
             dest: /etc/nginx/sites-available/{{path.split('/')[-1:][0]}}.conf
           notify: restart nginx
         - name: Linking sites-available and sites-enabled
