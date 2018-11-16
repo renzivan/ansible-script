@@ -1,7 +1,7 @@
 # INSTALL ANSIBLE
- `$ apt-get update`
- `$ apt-get install software-properties-common`
- `$ apt-add-repository --yes --update ppa:ansible/ansible`
+ `$ apt-get update`  
+ `$ apt-get install software-properties-common`  
+ `$ apt-add-repository --yes --update ppa:ansible/ansible`  
  `$ apt-get install ansible`
 
 ####Note:
@@ -11,7 +11,7 @@
 # ANSIBLE SCRIPTS
 
 ## PLAYBOOK 1: Setup Basic Wordpress Website with Nginx, MySQL, and PHP
- - Configure target host<br/>
+ - Configure target host
  `$ ansible-playbook playbooks/wordpress/setup_host.yml`
  - Setup Wordpress site
  `$ ansible-playbook playbooks/wordpress/setup_wordpress.yml`
