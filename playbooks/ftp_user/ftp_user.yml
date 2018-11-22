@@ -76,8 +76,9 @@
         - name: Syncing '/home/{{ftp_user}}/ftp/files/' with '{{bind_to}}'
           raw: '{{item}}'
           with_items:
+#            - chown -R '{{ftp_user}}':'{{ftp_user}}' /home/{{ftp_user}}/ftp/files/ 
             - sudo mount --bind '{{bind_to}}' /home/{{ftp_user}}/ftp/files
-            - chown -R '{{ftp_user}}':'{{ftp_user}}' /home/{{ftp_user}}/ftp/files/ 
+            - chmod -R 777 '{{bind_to}}'
 
       handlers:
         - name: restart vsftpd

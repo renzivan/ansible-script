@@ -72,7 +72,7 @@
             
         - name: Install php
           apt:
-            name: ['php', 'php-mysql', 'php-cgi', 'php-cli', 'php-gd']
+            name: ['php', 'php-mysql', 'php-cgi', 'php-cli', 'php-gd', 'php-fpm']
             state: present
 
         - name: Install wordpress
